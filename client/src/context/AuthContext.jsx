@@ -1,7 +1,10 @@
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import { baseUrl, postRequest } from "../utils/services";
 
 export const AuthContext = createContext();
+
+// Hãy bật cái comment này khi hoàn thành project
+// eslint-disable-next-line react/prop-types
 
 export const AuthContextProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
@@ -13,7 +16,11 @@ export const AuthContextProvider = ({ children }) => {
 		password: "",
 	});
 
-	console.log("registerInfo", registerInfo);
+	useEffect(() => {
+		const user = localStorage.getItem("user");
+
+		setUser(JSON.parse(user));
+	}, []);
 
 	const updateRegisterInfo = useCallback((info) => {
 		setRegisterInfo(info);
