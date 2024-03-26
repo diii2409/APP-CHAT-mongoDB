@@ -4,6 +4,7 @@ const {
 	findChat,
 	findUserChats,
 } = require("../Controller/chatController");
+
 const router = express.Router();
 
 router.post("/", creatChat);

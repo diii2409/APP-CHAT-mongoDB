@@ -28,7 +28,7 @@ const findUserChats = async (req, res) => {
 
 	try {
 		const chats = await chatModel.find({
-			members: userId, // Lỗi ở đây
+			members: userId,
 		});
 
 		res.status(200).json(chats);
