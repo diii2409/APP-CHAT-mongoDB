@@ -29,7 +29,10 @@ const Register = () => {
 								type='text'
 								placeholder='Name'
 								onChange={(e) => {
-									updateRegisterInfo({ ...registerInfo, name: e.target.value });
+									updateRegisterInfo({
+										...registerInfo,
+										name: e.target.value.trim(),
+									});
 								}}
 							/>
 							<Form.Control
@@ -38,7 +41,7 @@ const Register = () => {
 								onChange={(e) => {
 									updateRegisterInfo({
 										...registerInfo,
-										email: e.target.value,
+										email: e.target.value.trim(),
 									});
 								}}
 							/>
