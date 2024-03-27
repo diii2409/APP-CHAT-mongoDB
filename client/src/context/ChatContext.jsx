@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 import { createContext, useCallback, useEffect, useState } from "react";
 import { baseUrl, postRequest, getRequest } from "../utils/services";
+import { io } from "socket.io-client";
 
 export const ChatContext = createContext();
 
@@ -20,6 +21,46 @@ export const ChatContextProvider = ({ children, user }) => {
 
 	const [sendTextMessgeError, setSendTextMessgeError] = useState(null);
 	const [newMessage, setNewMessage] = useState(null);
+
+	const [socket, setSocket] = useState(null);
+	const [onlineUsers, setOnlineUsers] = useState([]);
+
+	useEffect(() => {
+		const newSocket = io("http://localhost:3000");
+
+		newSocket.emit("addNewUser", user?._id);
+
+		newSocket.on("getOnlineUsers", (res) => {
+			setOnlineUsers(res);
+		});
+
+		setSocket(newSocket);
+		return () => {
+			newSocket.disconnect();
+		};
+	}, [user]);
+	//Send Message
+	useEffect(() => {
+		if (socket === null) return;
+
+		const recipientId = currentChat?.members.find((id) => id !== user?._id);
+
+		socket.emit("sendMessage", { ...newMessage, recipientId });
+	}, [newMessage]);
+
+	//Recevice Message
+	useEffect(() => {
+		if (socket === null) return;
+
+		socket.on("getMessage", (res) => {
+			console.log("message received : ", res);
+
+			setMessages((prev) => [...prev, res]);
+		});
+		return () => {
+			socket.off("getMessage");
+		};
+	}, [socket, currentChat]);
 
 	useEffect(() => {
 		const getUser = async () => {
@@ -87,7 +128,6 @@ export const ChatContextProvider = ({ children, user }) => {
 			const response = await getRequest(
 				`${baseUrl}/messages/${currentChat?._id}`,
 			);
-			console.log(`${baseUrl}/messages/${currentChat?._id}`);
 
 			setIsMessagesLoading(false);
 
@@ -143,6 +183,7 @@ export const ChatContextProvider = ({ children, user }) => {
 				isMessagesLoading,
 				messagesError,
 				sendTextMessage,
+				onlineUsers,
 			}}>
 			{children}
 		</ChatContext.Provider>
