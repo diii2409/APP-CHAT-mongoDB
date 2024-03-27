@@ -1,11 +1,11 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { Stack } from "react-bootstrap";
 import { useFetchRecipientUser } from "../../hooks/useFetchRecipient";
-import avatar from "../../assets/avtDefaultGirl.svg";
+import avatar from "../../assets/avtDefault.svg";
 
-const userChat = ({ chat, user }) => {
+const UserChat = ({ chat, user }) => {
 	const { recipientUser } = useFetchRecipientUser(chat, user);
-	console.log(recipientUser);
 
 	return (
 		<Stack
@@ -33,9 +33,10 @@ const userChat = ({ chat, user }) => {
 			<div className='d-flex flex-column align-items-end'>
 				<div className='date'>24/09/2003</div>
 				<div className='this-user-notifications'>2</div>
+				<span className='user-online'></span>
 			</div>
 		</Stack>
 	);
 };
 
-export default userChat;
+export default UserChat;
