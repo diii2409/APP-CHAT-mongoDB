@@ -19,14 +19,17 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("sendMessage", (message) => {
-		console.log("message form Client : ", message);
 		const user = onLineUsers.find(
 			(user) => user.userId === message.recipientId,
 		);
 
 		if (user) {
-			console.log("message to Client :", message);
 			io.to(user.socketId).emit("getMessage", message);
+			io.to(user.socketId).emit("getNotification", {
+				senderId: message.senderId,
+				isRead: false,
+				date: new Date(),
+			});
 		}
 	});
 

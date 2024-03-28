@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import moment from "moment";
 import { Stack } from "react-bootstrap";
 import InputEmoji from "react-input-emoji";
@@ -15,6 +15,22 @@ const ChatBox = () => {
 	const { recipientUser } = useFetchRecipientUser(currentChat, user);
 
 	const [textMessage, setTextMessage] = useState("");
+
+	const scroll = useRef();
+
+	const handleKeyDown = (e) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			if (textMessage.trim() !== "") {
+				sendTextMessage(textMessage, user, currentChat?._id, setTextMessage);
+				console.log("has message", textMessage);
+			}
+		}
+	};
+
+	useEffect(() => {
+		scroll.current?.scrollIntoView({ behavior: "smooth" });
+	}, [messages]);
 
 	if (!recipientUser)
 		return (
@@ -35,22 +51,24 @@ const ChatBox = () => {
 			</div>
 			<Stack gap={3} className='messages'>
 				{messages &&
-					messages.map((message, index) => {
-						return (
-							<Stack
-								key={index}
-								className={`${
-									message?.senderId === user?._id
-										? "message self align-self-end flex-grow-0"
-										: "message align-self-start flex-grow-0"
-								}`}>
-								<span>{message.text}</span>
-								<span className='message-footer'>
-									{moment(message.createdAt).calendar()}
-								</span>
-							</Stack>
-						);
-					})}
+					messages.map(
+						(message, index) =>
+							message.chatId === currentChat._id && (
+								<Stack
+									key={index}
+									className={`${
+										message?.senderId === user?._id
+											? "message self align-self-end flex-grow-0"
+											: "message align-self-start flex-grow-0"
+									}`}
+									ref={index === messages.length - 1 ? scroll : null}>
+									<span>{message.text}</span>
+									<span className='message-footer'>
+										{moment(message.createdAt).calendar()}
+									</span>
+								</Stack>
+							),
+					)}
 			</Stack>
 			<Stack direction='horizontal' gap={3} className='chat-input flex-grow-0'>
 				<InputEmoji
@@ -58,6 +76,7 @@ const ChatBox = () => {
 					onChange={setTextMessage}
 					fontFamily='nunito'
 					borderColor='rgba(72,112,223,0.2)'
+					onKeyDown={handleKeyDown}
 				/>
 				<button
 					className='send-btn'
